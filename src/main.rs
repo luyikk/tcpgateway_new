@@ -89,7 +89,7 @@ fn install_log() -> Result<()> {
                 .print_message()
                 .write_mode(WriteMode::Async)
                 .start()?;
-            LOGGER_HANDLER.set(logger).map_err(|_| anyhow!("logger set error"))?;
+            LOGGER_HANDLER.set(logger).map_err(|_| anyhow::anyhow!("logger set error"))?;
         }
     }
     #[cfg(all(feature = "flexi_log", feature = "env_log"))]
