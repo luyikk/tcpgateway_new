@@ -80,7 +80,7 @@ fn install_log() -> Result<()> {
                 .set_palette("196;190;2;4;8".into())
                 .write_mode(WriteMode::Async)
                 .start()?;
-            LOGGER_HANDLER.set(logger).map_err(|_| anyhow!("logger set error"))?;
+            LOGGER_HANDLER.set(logger).map_err(|_| anyhow::anyhow!("logger set error"))?;
         } else {
             let logger = Logger::try_with_str("trace, sqlx = error,mio = error")?
                 .log_to_file(FileSpec::default().directory("logs").suppress_timestamp().suffix("log"))
