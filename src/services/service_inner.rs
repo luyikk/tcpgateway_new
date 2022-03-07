@@ -64,7 +64,8 @@ impl ServiceInner {
         if self.wait_open_table.insert(session_id) {
             if let Err(er) = self.send_open(session_id, ipaddress).await {
                 self.wait_open_table.remove(&session_id);
-                Err(er)
+                log::error!("open peer:{} error:{}",session_id,er);
+                Ok(())
             } else {
                 Ok(())
             }
@@ -229,7 +230,8 @@ impl ServiceInner {
         if let Some(ref client) = self.client {
             client.send_all(buff).await
         } else {
-            bail!("service:{} not connect", self.service_id)
+            log::error!("service:{} not connect", self.service_id);
+            Ok(())
         }
     }
 

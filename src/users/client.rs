@@ -43,7 +43,7 @@ impl Client {
             peer,
             address,
             is_open_zero: Default::default(),
-            last_recv_time: Default::default(),
+            last_recv_time: AtomicI64::new(timestamp()),
         }
     }
 
