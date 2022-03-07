@@ -30,6 +30,7 @@ async fn main() -> Result<()> {
 #[derive(StructOpt, Debug)]
 #[structopt(name = "tcp gateway service")]
 #[structopt(version=version())]
+#[allow(dead_code)]
 struct NavOpt {
     /// 是否开启控制台日志输出
     #[structopt(short, long)]
@@ -72,7 +73,7 @@ fn install_log() -> Result<()> {
             let logger = Logger::try_with_str("trace, sqlx = error,mio=error")?
                 .log_to_file_and_writer(
                     FileSpec::default().directory("logs").suppress_timestamp().suffix("log"),
-                    Box::new(stdout_log::StdErrLog::new()),
+                    Box::new(stdout_log::StdErrLog),
                 )
                 .format(flexi_logger::opt_format)
                 .rotate(Criterion::AgeOrSize(Age::Day, 1024 * 1024 * 5), Naming::Numbers, Cleanup::KeepLogFiles(30))
