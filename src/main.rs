@@ -7,7 +7,7 @@ mod users;
 mod stdout_log;
 
 
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use structopt::*;
 
 use crate::services::IServiceManager;
