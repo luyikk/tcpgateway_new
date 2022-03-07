@@ -254,7 +254,7 @@ impl Service {
             } else {
                 //发送数据包给客户端
                 USER_MANAGER
-                    .send_buffer(service_id, session_id, dr.get_offset(), dr.into_inner())
+                    .send_buffer(service_id, session_id, dr)
                     .await?;
             }
         }

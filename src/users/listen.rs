@@ -34,7 +34,7 @@ impl Listen {
                 let session_id = client.session_id;
                 let res = Self::data_input(reader, client).await;
                 if let Err(err) = USER_MANAGER.remove_client(session_id).await {
-                    log::error!("remove peer:{} error:{:?}", session_id, err);
+                    log::error!("remove peer:{} error:{}", session_id, err);
                 }
                 res
             })

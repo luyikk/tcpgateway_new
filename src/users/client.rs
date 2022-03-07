@@ -148,10 +148,12 @@ impl Client {
         &self,
         buff: B,
     ) -> Result<()> {
-        self.peer
+        if let Err(err)=self.peer
             .send_all(buff)
-            .await
-            .map_err(|x| anyhow!("client:{} send data error:{}", self, x))
+            .await{
+            log::error!("client:{} send data error:{}", self, err)
+        }
+        Ok(())
     }
 }
 

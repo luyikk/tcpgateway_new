@@ -6,6 +6,7 @@ use anyhow::{ensure, Result};
 use aqueue::Actor;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::Arc;
+use data_rw::DataOwnedReader;
 
 use crate::time::timestamp;
 pub use client::*;
@@ -94,13 +95,12 @@ impl UserManager {
         &self,
         service_id: u32,
         session_id: u32,
-        offset: usize,
-        buff: Vec<u8>,
+        buff: DataOwnedReader,
     ) -> Result<()> {
         if let Some(client) = self.users.get(&session_id) {
             let client = client.clone();
             tokio::spawn(async move {
-                if let Err(err) = client.send(service_id, &buff[offset..]).await {
+                if let Err(err) = client.send(service_id, &buff[buff.get_offset()..]).await {
                     log::error!(
                         "service:{}  peer:{} send buffer error:{:?}",
                         service_id,
@@ -162,8 +162,7 @@ pub trait IUserManager {
         &self,
         service_id: u32,
         session_id: u32,
-        offset: usize,
-        buff: Vec<u8>,
+        buff: DataOwnedReader,
     ) -> Result<()>;
     /// 检查长时间不发包的客户端 给他T了
     async fn check_timeout(&self) -> Result<()>;
@@ -217,12 +216,11 @@ impl IUserManager for Actor<UserManager> {
         &self,
         service_id: u32,
         session_id: u32,
-        offset: usize,
-        buff: Vec<u8>,
+        buff: DataOwnedReader,
     ) -> Result<()> {
         unsafe {
             self.deref_inner()
-                .send_buffer(service_id, session_id, offset, buff)
+                .send_buffer(service_id, session_id, buff)
                 .await
         }
     }
