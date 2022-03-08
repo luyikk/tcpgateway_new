@@ -293,10 +293,8 @@ pub trait IServiceInner {
     ) -> Result<()>;
     /// 发送注册包
     async fn send_register(&self) -> Result<()>;
-
     /// 发送BUFF
     async fn send_buffer(&self, session_id: u32, buff: &[u8]) -> Result<()>;
-
     /// 断线
     async fn disconnect(&self) -> Result<()>;
 }
