@@ -34,6 +34,12 @@ pub struct ServiceInner {
     pub disconnect_sender: Option<Left<(), ()>>,
 }
 
+impl Drop for ServiceInner {
+    fn drop(&mut self) {
+        log::info!("service inner:{} is drop",self.service_id)
+    }
+}
+
 impl ServiceInner {
     /// 强制断线
     #[inline]

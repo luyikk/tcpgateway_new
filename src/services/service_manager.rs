@@ -151,6 +151,7 @@ impl IServiceManager for Actor<ServiceManager> {
         unsafe {
             for service in self.deref_inner().services.values() {
                 if !service.is_disconnect() && service.check_ping().await? {
+                    log::warn!("service:{} ping time out disconnect",service.service_id);
                     service.disconnect_now().await?;
                 }
             }
