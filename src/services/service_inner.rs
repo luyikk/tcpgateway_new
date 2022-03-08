@@ -45,6 +45,7 @@ impl ServiceInner {
     #[inline]
     async fn disconnect(&mut self) -> Result<()> {
         if let Some(ref client) = self.client {
+            log::info!("disconnect to:{}",self.service_id);
             client.disconnect().await?;
             self.client = None;
             if let Some(ref tx) = self.disconnect_sender {
