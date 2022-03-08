@@ -9,7 +9,11 @@ pub struct StdErrLog;
 
 fn get_file_name(path: Option<&str>) -> anyhow::Result<&str> {
     match path {
-        Some(v) => Ok(Path::new(v).file_name().context("<unnamed>")?.to_str().context("<unnamed>")?),
+        Some(v) => Ok(Path::new(v)
+            .file_name()
+            .context("<unnamed>")?
+            .to_str()
+            .context("<unnamed>")?),
         None => Ok("<unnamed>"),
     }
 }

@@ -214,8 +214,10 @@ impl Service {
                             service_id
                         );
                         if inner.open_ok(session_id).await? {
-                            if let Err(err)=USER_MANAGER.open_service(service_id, session_id).await{
-                                log::error!("client session id:{} open error:{}",session_id,err);
+                            if let Err(err) =
+                                USER_MANAGER.open_service(service_id, session_id).await
+                            {
+                                log::error!("client session id:{} open error:{}", session_id, err);
                                 inner.close(session_id).await?;
                             }
                         } else {
@@ -258,9 +260,7 @@ impl Service {
                 }
             } else {
                 //发送数据包给客户端
-                USER_MANAGER
-                    .send_buffer(service_id, session_id, dr)
-                    .await?;
+                USER_MANAGER.send_buffer(service_id, session_id, dr).await?;
             }
         }
         Ok(true)

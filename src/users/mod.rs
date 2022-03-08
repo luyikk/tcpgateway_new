@@ -4,9 +4,9 @@ mod listen;
 use ahash::AHashMap;
 use anyhow::{ensure, Result};
 use aqueue::Actor;
+use data_rw::DataOwnedReader;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::Arc;
-use data_rw::DataOwnedReader;
 
 use crate::time::timestamp;
 pub use client::*;
@@ -68,9 +68,14 @@ impl UserManager {
         if let Some(client) = self.users.get(&session_id) {
             let client = client.clone();
             tokio::spawn(async move {
-               if let Err(err)=client.open_service(service_id).await{
-                   log::error!("service:{} peer:{} open_service error:{}",service_id,session_id,err);
-               }
+                if let Err(err) = client.open_service(service_id).await {
+                    log::error!(
+                        "service:{} peer:{} open_service error:{}",
+                        service_id,
+                        session_id,
+                        err
+                    );
+                }
             });
         }
         Ok(())
@@ -82,8 +87,13 @@ impl UserManager {
         if let Some(client) = self.users.get(&session_id) {
             let client = client.clone();
             tokio::spawn(async move {
-                if let Err(err)=client.close_service(service_id).await{
-                    log::error!("service:{} peer:{} close_service error:{}",service_id,session_id,err);
+                if let Err(err) = client.close_service(service_id).await {
+                    log::error!(
+                        "service:{} peer:{} close_service error:{}",
+                        service_id,
+                        session_id,
+                        err
+                    );
                 }
             });
         }
@@ -96,7 +106,7 @@ impl UserManager {
         if let Some(client) = self.users.get(&session_id) {
             let client = client.clone();
             tokio::spawn(async move {
-                if let Err(err) =  client.kick_by_delay(service_id, delay_ms).await{
+                if let Err(err) = client.kick_by_delay(service_id, delay_ms).await {
                     log::error!(
                         "service:{} peer:{} delay_ms:{} kick_by_delay error:{}",
                         service_id,
@@ -208,23 +218,29 @@ impl IUserManager for Actor<UserManager> {
 
     #[inline]
     async fn open_service(&self, service_id: u32, session_id: u32) -> Result<()> {
-        self.inner_call(|inner|async move{
-            inner.get().open_service(service_id,session_id).await
-        }).await
+        self.inner_call(
+            |inner| async move { inner.get().open_service(service_id, session_id).await },
+        )
+        .await
     }
 
     #[inline]
     async fn close_service(&self, service_id: u32, session_id: u32) -> Result<()> {
-        self.inner_call(|inner|async move{
-            inner.get().close_service(service_id,session_id).await
-        }).await
+        self.inner_call(
+            |inner| async move { inner.get().close_service(service_id, session_id).await },
+        )
+        .await
     }
 
     #[inline]
     async fn kick_client(&self, service_id: u32, session_id: u32, delay_ms: i32) -> Result<()> {
-        self.inner_call(|inner|async move{
-            inner.get().kick_client(service_id,session_id,delay_ms).await
-        }).await
+        self.inner_call(|inner| async move {
+            inner
+                .get()
+                .kick_client(service_id, session_id, delay_ms)
+                .await
+        })
+        .await
     }
     #[inline]
     async fn send_buffer(
@@ -233,9 +249,10 @@ impl IUserManager for Actor<UserManager> {
         session_id: u32,
         buff: DataOwnedReader,
     ) -> Result<()> {
-        self.inner_call(|inner|async move{
-            inner.get().send_buffer(service_id,session_id,buff).await
-        }).await
+        self.inner_call(|inner| async move {
+            inner.get().send_buffer(service_id, session_id, buff).await
+        })
+        .await
     }
 
     #[inline]

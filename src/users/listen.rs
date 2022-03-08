@@ -9,7 +9,7 @@ use tokio::net::{TcpStream, ToSocketAddrs};
 
 use crate::static_def::USER_MANAGER;
 use crate::users::{input_buff, Client, IUserManager};
-use crate::{IServiceManager,SERVICE_MANAGER};
+use crate::{IServiceManager, SERVICE_MANAGER};
 
 /// 最大数据表长度限制 512K
 const MAX_BUFF_LEN: usize = 512 * 1024;
@@ -79,10 +79,10 @@ impl Listen {
                 //     break;
                 // }
 
-                match  reader.read_u32_le().await {
-                    Ok(len)=>len as usize,
-                    Err(err)=>{
-                        log::warn!("peer:{} disconnect,err:{}", client,err);
+                match reader.read_u32_le().await {
+                    Ok(len) => len as usize,
+                    Err(err) => {
+                        log::warn!("peer:{} disconnect,err:{}", client, err);
                         break;
                     }
                 }

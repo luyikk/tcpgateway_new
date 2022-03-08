@@ -151,10 +151,8 @@ impl Client {
     ) -> Result<()> {
         if !self.peer.is_disconnect().await? {
             let session_id = self.session_id;
-            if let Err(err) = self.peer
-                .send_all(buff)
-                .await {
-                log::error!("peer:{} send data error:{}",session_id, err)
+            if let Err(err) = self.peer.send_all(buff).await {
+                log::error!("peer:{} send data error:{}", session_id, err)
             }
         }
         Ok(())
