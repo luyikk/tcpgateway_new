@@ -117,6 +117,8 @@ impl Service {
                         {
                             Ok(client) => {
                                 ref_inner.set_client(client).await?;
+                                ref_inner.set_last_ping_time(0);
+                                ref_inner.set_ping_delay_tick(0);
                                 return ref_inner.send_register().await;
                             }
                             Err(err) => {

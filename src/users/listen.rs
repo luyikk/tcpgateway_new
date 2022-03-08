@@ -79,11 +79,12 @@ impl Listen {
                 //     break;
                 // }
 
-                if let Ok(len) = reader.read_u32_le().await {
-                    len as usize
-                } else {
-                    log::warn!("peer:{} disconnect,not read data", client);
-                    break;
+                match  reader.read_u32_le().await {
+                    Ok(len)=>len as usize,
+                    Err(err)=>{
+                        log::warn!("peer:{} disconnect,read err:{}", client,err);
+                        break;
+                    }
                 }
             };
             //如果没有OPEN 直接掐线

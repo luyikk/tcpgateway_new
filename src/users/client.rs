@@ -149,10 +149,12 @@ impl Client {
         &self,
         buff: B,
     ) -> Result<()> {
-        if let Err(err)=self.peer
+        let session_id=self.session_id;
+        let peer=self.peer.clone();
+        if let Err(err)=peer
             .send_all(buff)
             .await{
-            log::error!("peer:{} send data error:{}", self, err)
+            log::error!("peer:{}-{} send data error:{}",session_id,peer.addr(), err)
         }
         Ok(())
     }
