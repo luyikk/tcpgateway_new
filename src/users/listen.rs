@@ -82,7 +82,7 @@ impl Listen {
                 if let Ok(len) = reader.read_u32_le().await {
                     len as usize
                 } else {
-                    log::warn!("client:{} disconnect not read data", client);
+                    log::warn!("client:{} disconnect,not read data", client);
                     break;
                 }
             };
