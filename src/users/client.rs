@@ -149,12 +149,13 @@ impl Client {
         &self,
         buff: B,
     ) -> Result<()> {
-        let session_id=self.session_id;
-        let peer=self.peer.clone();
-        if let Err(err)=peer
-            .send_all(buff)
-            .await{
-            log::error!("peer:{}-{} send data error:{}",session_id,peer.addr(), err)
+        if !self.peer.is_disconnect().await? {
+            let session_id = self.session_id;
+            if let Err(err) = self.peer
+                .send_all(buff)
+                .await {
+                log::error!("peer:{} send data error:{}",session_id, err)
+            }
         }
         Ok(())
     }

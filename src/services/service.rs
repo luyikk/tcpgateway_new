@@ -214,7 +214,10 @@ impl Service {
                             service_id
                         );
                         if inner.open_ok(session_id).await? {
-                            USER_MANAGER.open_service(service_id, session_id).await?;
+                            if let Err(err)=USER_MANAGER.open_service(service_id, session_id).await{
+                                log::error!("client session id:{} open error:{}",session_id,err);
+                                inner.close(session_id).await?;
+                            }
                         } else {
                             log::error!("client session id:{} open fail", session_id);
                         }
