@@ -14,8 +14,8 @@ use crate::services::IServiceManager;
 use crate::static_def::{CONFIG, SERVICE_MANAGER, TIMER_MANAGER};
 use crate::users::Listen;
 
-#[global_allocator]
-static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+//#[global_allocator]
+//static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 #[tokio::main]
 async fn main() -> Result<()> {
