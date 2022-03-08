@@ -66,7 +66,12 @@ impl UserManager {
     #[inline]
     async fn open_service(&self, service_id: u32, session_id: u32) -> Result<()> {
         if let Some(client) = self.users.get(&session_id) {
-            client.open_service(service_id).await?;
+            let client = client.clone();
+            tokio::spawn(async move {
+               if let Err(err)=client.open_service(service_id).await{
+                   log::error!("service:{} peer:{} open_service error:{}",service_id,session_id,err);
+               }
+            });
         }
         Ok(())
     }
@@ -75,7 +80,12 @@ impl UserManager {
     #[inline]
     async fn close_service(&self, service_id: u32, session_id: u32) -> Result<()> {
         if let Some(client) = self.users.get(&session_id) {
-            client.close_service(service_id).await?;
+            let client = client.clone();
+            tokio::spawn(async move {
+                if let Err(err)=client.close_service(service_id).await{
+                    log::error!("service:{} peer:{} close_service error:{}",service_id,session_id,err);
+                }
+            });
         }
         Ok(())
     }
@@ -84,7 +94,18 @@ impl UserManager {
     #[inline]
     async fn kick_client(&self, service_id: u32, session_id: u32, delay_ms: i32) -> Result<()> {
         if let Some(client) = self.users.get(&session_id) {
-            client.kick_by_delay(service_id, delay_ms).await?;
+            let client = client.clone();
+            tokio::spawn(async move {
+                if let Err(err) =  client.kick_by_delay(service_id, delay_ms).await{
+                    log::error!(
+                        "service:{} peer:{} delay_ms:{} kick_by_delay error:{}",
+                        service_id,
+                        session_id,
+                        delay_ms,
+                        err
+                    );
+                }
+            });
         }
         Ok(())
     }
@@ -187,12 +208,6 @@ impl IUserManager for Actor<UserManager> {
 
     #[inline]
     async fn open_service(&self, service_id: u32, session_id: u32) -> Result<()> {
-        // unsafe {
-        //     self.deref_inner()
-        //         .open_service(service_id, session_id)
-        //         .await
-        // }
-
         self.inner_call(|inner|async move{
             inner.get().open_service(service_id,session_id).await
         }).await
@@ -200,12 +215,6 @@ impl IUserManager for Actor<UserManager> {
 
     #[inline]
     async fn close_service(&self, service_id: u32, session_id: u32) -> Result<()> {
-        // unsafe {
-        //     self.deref_inner()
-        //         .close_service(service_id, session_id)
-        //         .await
-        // }
-
         self.inner_call(|inner|async move{
             inner.get().close_service(service_id,session_id).await
         }).await
@@ -213,11 +222,6 @@ impl IUserManager for Actor<UserManager> {
 
     #[inline]
     async fn kick_client(&self, service_id: u32, session_id: u32, delay_ms: i32) -> Result<()> {
-        // unsafe {
-        //     self.deref_inner()
-        //         .kick_client(service_id, session_id, delay_ms)
-        //         .await
-        // }
         self.inner_call(|inner|async move{
             inner.get().kick_client(service_id,session_id,delay_ms).await
         }).await
@@ -229,11 +233,6 @@ impl IUserManager for Actor<UserManager> {
         session_id: u32,
         buff: DataOwnedReader,
     ) -> Result<()> {
-        // unsafe {
-        //     self.deref_inner()
-        //         .send_buffer(service_id, session_id, buff)
-        //         .await
-        // }
         self.inner_call(|inner|async move{
             inner.get().send_buffer(service_id,session_id,buff).await
         }).await
