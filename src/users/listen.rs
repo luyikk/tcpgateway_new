@@ -82,7 +82,7 @@ impl Listen {
                 match  reader.read_u32_le().await {
                     Ok(len)=>len as usize,
                     Err(err)=>{
-                        log::warn!("peer:{} disconnect,read err:{}", client,err);
+                        log::warn!("peer:{} disconnect,err:{}", client,err);
                         break;
                     }
                 }
