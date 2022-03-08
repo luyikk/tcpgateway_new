@@ -24,7 +24,7 @@ pub struct Client {
 
 impl Drop for Client {
     fn drop(&mut self) {
-        log::debug! {"ClientPeer:{} drop",self}
+        log::debug! {"Client:{} drop",self}
     }
 }
 
@@ -61,6 +61,7 @@ impl Client {
     /// 服务器open ok
     #[inline]
     pub async fn open_service(&self, service_id: u32) -> Result<()> {
+        log::info!("service:{} open peer:{} OK", service_id, self.session_id);
         self.is_open_zero.store(true, Ordering::Release);
         self.send_open(service_id).await
     }
@@ -68,7 +69,7 @@ impl Client {
     /// 服务器通知 关闭某个服务
     #[inline]
     pub async fn close_service(&self, service_id: u32) -> Result<()> {
-        log::info!("service:{} close client:{} ok", service_id, self.session_id);
+        log::info!("service:{} close peer:{} ok", service_id, self.session_id);
         if service_id == 0 {
             self.kick().await
         } else {
@@ -151,7 +152,7 @@ impl Client {
         if let Err(err)=self.peer
             .send_all(buff)
             .await{
-            log::error!("client:{} send data error:{}", self, err)
+            log::error!("peer:{} send data error:{}", self, err)
         }
         Ok(())
     }
@@ -174,7 +175,7 @@ pub async fn input_buff(client: &Arc<Client>, data: Vec<u8>) -> Result<()> {
         client.send(server_id, &reader[reader.get_offset()..]).await
     } else if !client.is_open_zero.load(Ordering::Acquire) {
         client.kick().await?;
-        log::info!("client:{} not open 0 read data Disconnect it", client);
+        log::info!("peer:{} not open 0 read data Disconnect it", client);
         Ok(())
     } else {
         SERVICE_MANAGER

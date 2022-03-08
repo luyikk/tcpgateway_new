@@ -82,13 +82,13 @@ impl Listen {
                 if let Ok(len) = reader.read_u32_le().await {
                     len as usize
                 } else {
-                    log::warn!("client:{} disconnect,not read data", client);
+                    log::warn!("peer:{} disconnect,not read data", client);
                     break;
                 }
             };
             //如果没有OPEN 直接掐线
             if !client.is_open_zero.load(Ordering::Acquire) {
-                log::warn!("client:{} not open send data,disconnect!", client);
+                log::warn!("peer:{} not open send data,disconnect!", client);
                 break;
             }
 
@@ -103,7 +103,7 @@ impl Listen {
                 Ok(rev) => {
                     ensure!(
                         len == rev,
-                        "client:{} read buff error len:{}>rev:{}",
+                        "peer:{} read buff error len:{}>rev:{}",
                         client,
                         len,
                         rev

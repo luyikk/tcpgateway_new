@@ -132,9 +132,9 @@ impl UserManager {
             .collect::<Vec<_>>()
         {
             if let Some(client) = self.users.remove(&session_id) {
-                log::info!("client:{} timeout need disconnect", client);
+                log::info!("peer:{} timeout need disconnect", client);
                 if let Err(err) = client.disconnect_now().await {
-                    log::error!("RemovePeer:{} is error:{:?}", client, err)
+                    log::error!("remove peer:{} is error:{:?}", client, err)
                 }
             }
         }
