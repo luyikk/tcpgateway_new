@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-/// 网关配置加装
+/// 网关配置结构
 #[derive(Deserialize, Debug)]
 pub struct Config {
     #[serde(rename = "gatewayId")]
