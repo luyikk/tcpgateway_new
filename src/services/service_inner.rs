@@ -368,7 +368,6 @@ impl IServiceInner for Actor<ServiceInner> {
 
     #[inline]
     async fn check_ping(&self) -> Result<bool> {
-        //unsafe { self.deref_inner().check_ping().await }
         self.inner_call(|inner| async move { inner.get_mut().check_ping().await })
             .await
     }
@@ -399,9 +398,6 @@ impl IServiceInner for Actor<ServiceInner> {
         data: &[u8],
     ) -> Result<()> {
         unsafe {
-            // self.deref_inner()
-            //     .send_buffer_by_typeid(session_id, serial, typeid, data)
-            //     .await
             self.inner_call_ref(|inner| async move {
                 inner
                     .get_mut()
@@ -414,18 +410,6 @@ impl IServiceInner for Actor<ServiceInner> {
 
     #[inline]
     async fn send_register(&self) -> Result<()> {
-        // unsafe {
-        //     let mut buffer = data_rw::Data::new();
-        //     buffer.write_fixed(0u32);
-        //     buffer.write_fixed(0xFFFFFFFFu32);
-        //     buffer.write_var_integer("gatewayId");
-        //     buffer.write_var_integer(self.deref_inner().gateway_id);
-        //     buffer.write_fixed(1u8);
-        //     let len = get_len!(buffer);
-        //     (&mut buffer[0..4]).put_u32_le(len);
-        //     self.deref_inner().send_buff(buffer.into_inner()).await
-        // }
-
         let mut buffer = data_rw::Data::new();
         buffer.write_fixed(0u32);
         buffer.write_fixed(0xFFFFFFFFu32);
@@ -441,16 +425,6 @@ impl IServiceInner for Actor<ServiceInner> {
 
     #[inline]
     async fn send_buffer(&self, session_id: u32, buff: &[u8]) -> Result<()> {
-        // unsafe {
-        //     let mut buffer = data_rw::Data::new();
-        //     buffer.write_fixed(0u32);
-        //     buffer.write_fixed(session_id);
-        //     buffer.write_buf(buff);
-        //     let len = get_len!(buffer);
-        //     (&mut buffer[0..4]).put_u32_le(len);
-        //     self.deref_inner().send_buff(buffer.into_inner()).await
-        // }
-
         let mut buffer = data_rw::Data::new();
         buffer.write_fixed(0u32);
         buffer.write_fixed(session_id);
