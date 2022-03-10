@@ -43,16 +43,17 @@ impl Drop for ServiceInner {
 impl ServiceInner {
     /// 强制断线
     #[inline]
-    async fn disconnect(&mut self) -> Result<()> {
+    async fn disconnect(&mut self) {
         if let Some(ref client) = self.client {
             log::warn!("disconnect now to service:{}", self.service_id);
-            client.disconnect().await?;
+            if let Err(err) = client.disconnect().await {
+                log::error!("disconnect service:{} error:{}", self.service_id, err);
+            }
             self.client = None;
             if let Some(ref tx) = self.disconnect_sender {
                 tx.send(());
             }
         }
-        Ok(())
     }
 
     ///添加type ids
@@ -117,7 +118,7 @@ impl ServiceInner {
 
             return Ok(true);
         } else if let Err(er) = self.send_ping(now).await {
-            log::error!("service{} send ping  error:{:?}", self.service_id, er)
+            log::error!("service {} send ping  error:{:?}", self.service_id, er)
         }
 
         Ok(false)
@@ -438,7 +439,10 @@ impl IServiceInner for Actor<ServiceInner> {
 
     #[inline]
     async fn disconnect(&self) -> Result<()> {
-        self.inner_call(|inner| async move { inner.get_mut().disconnect().await })
-            .await
+        self.inner_call(|inner| async move {
+            inner.get_mut().disconnect().await;
+            Ok(())
+        })
+        .await
     }
 }

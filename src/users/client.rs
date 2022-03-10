@@ -173,7 +173,7 @@ pub async fn input_buff(client: &Arc<Client>, data: Vec<u8>) -> Result<()> {
     client.last_recv_time.store(timestamp(), Ordering::Release);
     if u32::MAX == server_id {
         //给网关发送数据包,默认当PING包无脑回
-        client.send(server_id, &reader[reader.get_offset()..]).await    
+        client.send(server_id, &reader[reader.get_offset()..]).await
     } else {
         SERVICE_MANAGER
             .send_buffer(client.session_id, server_id, reader)
