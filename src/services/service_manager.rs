@@ -60,14 +60,14 @@ impl ServiceManager {
         for service in services {
             have = true;
             if let Err(err) = service.inner.drop_client(session_id).await {
-                log::error! {"DropClientPeer error service {} session_id:{} error:{:?}", service.service_id, session_id, err}
+                log::error! {"DropClientPeer error service {} session_id:{} error:{}", service.service_id, session_id, err}
             }
         }
 
         if !have {
             if let Some(service) = self.services.get(&0) {
                 if let Err(err) = service.inner.drop_client(session_id).await {
-                    log::error! {"DropClientPeer error main service 0 session_id:{} error:{:?}",  session_id, err}
+                    log::error! {"DropClientPeer error main service 0 session_id:{} error:{}",  session_id, err}
                 }
             }
         }
