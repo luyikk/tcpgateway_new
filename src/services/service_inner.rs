@@ -182,7 +182,12 @@ impl ServiceInner {
         buffer.write_fixed(0u32);
         buffer.write_fixed(session_id);
         buffer.write_var_integer(serial);
-        buffer.write_var_integer(typeid);
+        #[cfg(feature = "unity")]{
+            buffer.write_var_integer(typeid as i32);
+        }
+        #[cfg(not(feature = "unity"))]{
+            buffer.write_var_integer(typeid);
+        }
         buffer.write_buf(data);
         let len = get_len!(buffer);
         (&mut buffer[0..4]).put_u32_le(len);
