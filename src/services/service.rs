@@ -86,11 +86,9 @@ impl Service {
 
             inner
                 .inner_call(|inner| async move {
-                    inner.get_mut().disconnect_sender = Some(sender_disconnect);
-                    Ok(())
+                    inner.get_mut().disconnect_sender = Some(sender_disconnect)
                 })
-                .await
-                .expect("not set service tx");
+                .await;
 
             let ref_address = address.as_str();
             let ref_inner = &inner;

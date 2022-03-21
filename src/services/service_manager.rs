@@ -94,12 +94,14 @@ impl ServiceManager {
         if service_id == 0xEEEEEEEE {
             //智能路由
             let serial = reader.read_var_integer::<i32>()?;
-            let type_id= {
-                #[cfg(feature = "unity")]{
-                   reader.read_var_integer::<i32>()? as u32
+            let type_id = {
+                #[cfg(feature = "unity")]
+                {
+                    reader.read_var_integer::<i32>()? as u32
                 }
-                #[cfg(not(feature = "unity"))]{
-                   reader.read_var_integer::<u32>()?
+                #[cfg(not(feature = "unity"))]
+                {
+                    reader.read_var_integer::<u32>()?
                 }
             };
 

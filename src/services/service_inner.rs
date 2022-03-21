@@ -182,10 +182,12 @@ impl ServiceInner {
         buffer.write_fixed(0u32);
         buffer.write_fixed(session_id);
         buffer.write_var_integer(serial);
-        #[cfg(feature = "unity")]{
+        #[cfg(feature = "unity")]
+        {
             buffer.write_var_integer(typeid as i32);
         }
-        #[cfg(not(feature = "unity"))]{
+        #[cfg(not(feature = "unity"))]
+        {
             buffer.write_var_integer(typeid);
         }
         buffer.write_buf(data);
@@ -353,12 +355,8 @@ impl IServiceInner for Actor<ServiceInner> {
 
     #[inline]
     async fn open(&self, session_id: u32, ipaddress: &str) -> Result<()> {
-        unsafe {
-            self.inner_call_ref(
-                |inner| async move { inner.get_mut().open(session_id, ipaddress).await },
-            )
+        self.inner_call(|inner| async move { inner.get_mut().open(session_id, ipaddress).await })
             .await
-        }
     }
 
     #[inline]
@@ -403,15 +401,13 @@ impl IServiceInner for Actor<ServiceInner> {
         typeid: u32,
         data: &[u8],
     ) -> Result<()> {
-        unsafe {
-            self.inner_call_ref(|inner| async move {
-                inner
-                    .get_mut()
-                    .send_buffer_by_typeid(session_id, serial, typeid, data)
-                    .await
-            })
+        self.inner_call(|inner| async move {
+            inner
+                .get_mut()
+                .send_buffer_by_typeid(session_id, serial, typeid, data)
+                .await
+        })
             .await
-        }
     }
 
     #[inline]
