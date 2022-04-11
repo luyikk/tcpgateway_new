@@ -2,6 +2,7 @@
   "gatewayId": 1,
   "listenPort": 20000,
   "clientTimeoutSeconds": 30,
+  "encode": "abe#sgasfesv344",
   "services": [
     {
       "serviceId": 0,

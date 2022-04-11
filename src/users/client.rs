@@ -1,5 +1,5 @@
 use crate::time::timestamp;
-use crate::{get_len, IServiceManager, SERVICE_MANAGER};
+use crate::{CONFIG, get_len, IServiceManager, SERVICE_MANAGER};
 use anyhow::{ensure, Result};
 use bytes::BufMut;
 use data_rw::DataOwnedReader;
@@ -114,6 +114,7 @@ impl Client {
         buffer.write_buf(buff);
         let len = get_len!(buffer);
         (&mut buffer[0..4]).put_u32_le(len);
+        encode(&mut buffer[4..]);
         self.send_buff(buffer.into_inner()).await
     }
 
@@ -127,6 +128,7 @@ impl Client {
         buffer.write_var_integer(service_id);
         let len = get_len!(buffer);
         (&mut buffer[0..4]).put_u32_le(len);
+        encode(&mut buffer[4..]);
         self.send_buff(buffer.into_inner()).await
     }
 
@@ -140,6 +142,7 @@ impl Client {
         buffer.write_var_integer(service_id);
         let len = get_len!(buffer);
         (&mut buffer[0..4]).put_u32_le(len);
+        encode(&mut buffer[4..]);
         self.send_buff(buffer.into_inner()).await
     }
 
@@ -161,13 +164,16 @@ impl Client {
 
 /// 客户端数据包处理
 #[inline]
-pub async fn input_buff(client: &Arc<Client>, data: Vec<u8>) -> Result<()> {
+pub async fn input_buff(client: &Arc<Client>, mut data: Vec<u8>) -> Result<()> {
     ensure!(
         data.len() > 4,
         "peer:{} data len:{} <4",
         client.session_id,
         data.len()
     );
+
+    decode(&mut data);
+
     let mut reader = DataOwnedReader::new(data);
     let server_id = reader.read_fixed::<u32>()?;
     client.last_recv_time.store(timestamp(), Ordering::Release);
@@ -178,5 +184,29 @@ pub async fn input_buff(client: &Arc<Client>, data: Vec<u8>) -> Result<()> {
         SERVICE_MANAGER
             .send_buffer(client.session_id, server_id, reader)
             .await
+    }
+}
+
+/// 加密
+#[inline]
+fn encode(data:&mut [u8]){
+    decode(data);
+}
+
+/// 解密
+#[inline]
+fn decode(data:&mut [u8]){
+    if let Some(ref key)= CONFIG.encode {
+        let key = key.as_bytes();
+        if !key.is_empty() {
+            let mut j = 0;
+            for i in 0..data.len() {
+                data[i] = data[i] ^ key[j];
+                j += 1;
+                if j >= key.len() {
+                    j = 0;
+                }
+            }
+        }
     }
 }
