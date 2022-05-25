@@ -80,12 +80,11 @@ impl Client {
     /// kick 命令
     #[inline]
     pub async fn kick_by_delay(&self, service_id: u32, mut delay_ms: i32) -> Result<()> {
-        log::info!("service:{} kick peer:{}", service_id, self);
-        self.send_close(0).await?;
         if !(0..=30000).contains(&delay_ms) {
             delay_ms = 5000;
         }
-
+        log::info!("service:{} delay kick peer:{} delay_ms:{}", service_id, self,delay_ms);
+        self.send_close(0).await?;
         let peer = self.peer.clone();
         let session_id = self.session_id;
         tokio::spawn(async move {
@@ -101,6 +100,7 @@ impl Client {
     /// 发送 CLOSE 0 后立即断线清理内存
     #[inline]
     async fn kick(&self) -> Result<()> {
+        log::info!("start kick peer:{} now",self.session_id);
         self.send_close(0).await?;
         self.disconnect_now().await
     }
