@@ -27,7 +27,7 @@ async fn main() -> Result<()> {
 }
 
 #[derive(StructOpt, Debug)]
-#[structopt(name = "tcp gateway service")]
+#[structopt(name = "tcp gateway dynamic encryption service")]
 #[structopt(version=version())]
 #[allow(dead_code)]
 struct NavOpt {
