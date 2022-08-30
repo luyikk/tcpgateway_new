@@ -1,11 +1,13 @@
-use anyhow::{ensure, Result};
+use anyhow::{anyhow, ensure, Result};
 use aqueue::Actor;
 use log::info;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
+use std::time::Duration;
 use tcpserver::*;
 use tokio::io::{AsyncReadExt, ReadHalf};
 use tokio::net::{TcpStream, ToSocketAddrs};
+use tokio::time::timeout;
 
 use crate::static_def::USER_MANAGER;
 use crate::users::{input_buff, Client, IUserManager};
@@ -51,7 +53,35 @@ impl Listen {
     /// 数据包处理
     #[inline]
     async fn data_input(mut reader: ReadHalf<TcpStream>, client: Arc<Client>) -> Result<()> {
-        log::debug!("create peer:{}", client);
+        log::debug!("create peer:{} wait secret key ", client);
+
+        // 获取 secret key 长度
+        let len = {
+            timeout(Duration::from_secs(5), reader.read_u8())
+                .await
+                .map_err(|_| anyhow!("client:{} 5 secs not read secret key len", client))??
+                as usize
+        };
+
+        // 读取加密串
+        let mut secret_key = vec![0; len];
+        let rev = timeout(Duration::from_secs(5), reader.read_exact(&mut secret_key))
+            .await
+            .map_err(|_| anyhow!("client:{} 5 secs not read secret key data", client))??;
+        ensure!(
+            rev == len,
+            "client:{} read secret key error len:{}>rev:{}",
+            client,
+            len,
+            rev
+        );
+
+        //设置加密串
+        client
+            .secret_key
+            .set(secret_key)
+            .map_err(|_| anyhow!("set client:{} secret key error", client))?;
+
         SERVICE_MANAGER
             .open_service(client.session_id, 0, &client.address)
             .await?;

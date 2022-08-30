@@ -1,8 +1,9 @@
 use crate::time::timestamp;
-use crate::{CONFIG, get_len, IServiceManager, SERVICE_MANAGER};
+use crate::{get_len, IServiceManager, SERVICE_MANAGER};
 use anyhow::{ensure, Result};
 use bytes::BufMut;
 use data_rw::DataOwnedReader;
+use once_cell::sync::OnceCell;
 use std::fmt::{self, Display, Formatter};
 use std::ops::Deref;
 use std::sync::atomic::{AtomicBool, AtomicI64, Ordering};
@@ -20,6 +21,7 @@ pub struct Client {
     pub address: String,
     pub is_open_zero: AtomicBool,
     pub last_recv_time: AtomicI64,
+    pub secret_key: OnceCell<Vec<u8>>,
 }
 
 impl Drop for Client {
@@ -44,6 +46,16 @@ impl Client {
             address,
             is_open_zero: Default::default(),
             last_recv_time: AtomicI64::new(timestamp()),
+            secret_key: Default::default(),
+        }
+    }
+
+    #[inline]
+    pub fn get_secret_key(&self) -> &[u8] {
+        if let Some(key) = self.secret_key.get() {
+            key
+        } else {
+            &[]
         }
     }
 
@@ -83,7 +95,12 @@ impl Client {
         if !(0..=30000).contains(&delay_ms) {
             delay_ms = 5000;
         }
-        log::info!("service:{} delay kick peer:{} delay_ms:{}", service_id, self,delay_ms);
+        log::info!(
+            "service:{} delay kick peer:{} delay_ms:{}",
+            service_id,
+            self,
+            delay_ms
+        );
         self.send_close(0).await?;
         let peer = self.peer.clone();
         let session_id = self.session_id;
@@ -100,7 +117,7 @@ impl Client {
     /// 发送 CLOSE 0 后立即断线清理内存
     #[inline]
     async fn kick(&self) -> Result<()> {
-        log::info!("start kick peer:{} now",self.session_id);
+        log::info!("start kick peer:{} now", self.session_id);
         self.send_close(0).await?;
         self.disconnect_now().await
     }
@@ -114,7 +131,7 @@ impl Client {
         buffer.write_buf(buff);
         let len = get_len!(buffer);
         (&mut buffer[0..4]).put_u32_le(len);
-        encode(&mut buffer[4..]);
+        encode(&mut buffer[4..], self.get_secret_key());
         self.send_buff(buffer.into_inner()).await
     }
 
@@ -128,7 +145,7 @@ impl Client {
         buffer.write_var_integer(service_id);
         let len = get_len!(buffer);
         (&mut buffer[0..4]).put_u32_le(len);
-        encode(&mut buffer[4..]);
+        encode(&mut buffer[4..], self.get_secret_key());
         self.send_buff(buffer.into_inner()).await
     }
 
@@ -142,7 +159,7 @@ impl Client {
         buffer.write_var_integer(service_id);
         let len = get_len!(buffer);
         (&mut buffer[0..4]).put_u32_le(len);
-        encode(&mut buffer[4..]);
+        encode(&mut buffer[4..], self.get_secret_key());
         self.send_buff(buffer.into_inner()).await
     }
 
@@ -172,7 +189,7 @@ pub async fn input_buff(client: &Arc<Client>, mut data: Vec<u8>) -> Result<()> {
         data.len()
     );
 
-    decode(&mut data);
+    decode(&mut data, client.get_secret_key());
 
     let mut reader = DataOwnedReader::new(data);
     let server_id = reader.read_fixed::<u32>()?;
@@ -189,25 +206,21 @@ pub async fn input_buff(client: &Arc<Client>, mut data: Vec<u8>) -> Result<()> {
 
 /// 加密
 #[inline]
-fn encode(data:&mut [u8]){
-    decode(data);
+fn encode(data: &mut [u8], key: &[u8]) {
+    decode(data, key);
 }
 
 /// 解密
 #[inline]
-fn decode(data:&mut [u8]){
-    if let Some(ref key)= CONFIG.encode {
-        let key = key.as_bytes();
-        if !key.is_empty() {
-            let mut j = 0;
-            for item in data  {
-                *item ^= key[j];
-                j += 1;
-                if j >= key.len() {
-                    j = 0;
-                }
+fn decode(data: &mut [u8], key: &[u8]) {
+    if !key.is_empty() {
+        let mut j = 0;
+        for item in data {
+            *item ^= key[j];
+            j += 1;
+            if j >= key.len() {
+                j = 0;
             }
         }
     }
 }
-

@@ -407,7 +407,7 @@ impl IServiceInner for Actor<ServiceInner> {
                 .send_buffer_by_typeid(session_id, serial, typeid, data)
                 .await
         })
-            .await
+        .await
     }
 
     #[inline]
