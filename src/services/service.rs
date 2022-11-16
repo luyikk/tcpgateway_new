@@ -241,12 +241,6 @@ impl Service {
                             service_id
                         );
                         let delay_ms = dr.read_var_integer::<i32>()?;
-                        ensure!(
-                            delay_ms >= 0,
-                            "service:{} read kick time error:{}",
-                            service_id,
-                            delay_ms
-                        );
 
                         USER_MANAGER
                             .kick_client(service_id, session_id, delay_ms)
