@@ -104,10 +104,11 @@ impl ServiceInner {
     /// 检查ping
     #[inline]
     async fn check_ping(&self) -> Result<bool> {
+        log::trace!("service:{} check ping",self.service_id);
         let last_ping_time = self.last_ping_time.load(Ordering::Acquire);
         let now = timestamp();
-        //30秒超时 单位tick 秒后 7个0
-        if last_ping_time > 0 && now - last_ping_time > 60 * 1000 * 10000 {
+        //10分钟 单位tick 秒后 7个0
+        if last_ping_time > 0 && now - last_ping_time > 600 * 1000 * 10000 {
             log::warn!(
                 "service:{} ping time out,shutdown it,now:{},last_ping_time:{},ping_delay_tick:{}",
                 self.service_id,
