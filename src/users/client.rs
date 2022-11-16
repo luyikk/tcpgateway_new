@@ -9,7 +9,7 @@ use std::sync::atomic::{AtomicBool, AtomicI64, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
 use tcpserver::IPeer;
-use tokio::time::sleep;
+use tokio::time::{sleep, timeout};
 
 use crate::users::Peer;
 
@@ -154,9 +154,16 @@ impl Client {
     ) -> Result<()> {
         if !self.peer.is_disconnect().await? {
             let session_id = self.session_id;
-            if let Err(err) = self.peer.send_all(buff).await {
-                log::error!("peer:{} send data error:{}", session_id, err)
+            match timeout(Duration::from_secs(3),self.peer.send_all(buff)).await{
+                Err(_)=>{
+                    log::error!("peer:{} send data timeout 3 secs", session_id)
+                },
+                Ok(Err(err))=>{
+                    log::error!("peer:{} send data error:{}", session_id, err)
+                },
+                _=>{}
             }
+
         }
         Ok(())
     }

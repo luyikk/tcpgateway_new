@@ -117,7 +117,7 @@ impl ServiceInner {
                 self.ping_delay_tick.load(Ordering::Acquire)
             );
 
-            return Ok(true);
+            //return Ok(true);
         } else if let Err(er) = self.send_ping(now).await {
             log::error!("service {} send ping  error:{:?}", self.service_id, er)
         }
