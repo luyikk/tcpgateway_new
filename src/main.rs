@@ -7,7 +7,7 @@ mod timer;
 mod users;
 
 use anyhow::Result;
-use structopt::*;
+use clap::Parser;
 
 use crate::services::IServiceManager;
 use crate::static_def::{CONFIG, SERVICE_MANAGER, TIMER_MANAGER};
@@ -26,16 +26,17 @@ async fn main() -> Result<()> {
     server.start().await
 }
 
-#[derive(StructOpt, Debug)]
-#[structopt(name = "tcp gateway service")]
-#[structopt(version=version())]
-#[allow(dead_code)]
+#[derive(Parser, Debug)]
+#[clap(
+version=version(),
+name = "tcp gateway service"
+)]
 struct NavOpt {
     /// 是否开启控制台日志输出
-    #[structopt(short, long)]
+    #[clap(short, long, value_parser)]
     syslog: bool,
     /// 是否打印崩溃堆栈
-    #[structopt(short, long)]
+    #[structopt(short, long, value_parser, default_value_t = true)]
     backtrace: bool,
 }
 
@@ -46,6 +47,7 @@ fn version() -> &'static str {
     "==================================version info=================================",
     "\n",
     "Build Timestamp:", env!("VERGEN_BUILD_TIMESTAMP"), "\n",
+    "Build System:",env!("VERGEN_SYSINFO_OS_VERSION"), "\n",
     "GIT BRANCH:", env!("VERGEN_GIT_BRANCH"), "\n",
     "GIT COMMIT DATE:", env!("VERGEN_GIT_COMMIT_TIMESTAMP"), "\n",
     "GIT SHA:", env!("VERGEN_GIT_SHA"), "\n",
@@ -54,13 +56,13 @@ fn version() -> &'static str {
     "\n",
     }
 }
-
+ 
 #[cfg(all(feature = "flexi_log", not(feature = "env_log")))]
 static LOGGER_HANDLER: tokio::sync::OnceCell<flexi_logger::LoggerHandle> =
     tokio::sync::OnceCell::const_new();
 
 fn install_log() -> Result<()> {
-    let opt = NavOpt::from_args();
+    let opt = NavOpt::parse();
     if opt.backtrace {
         std::env::set_var("RUST_BACKTRACE", "1");
     }
