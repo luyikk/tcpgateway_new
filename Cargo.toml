@@ -35,7 +35,7 @@ env_logger = {version="0.9",optional =true}
 
 [build-dependencies]
 anyhow="1.0"
-vergen="5"
+vergen= "7"
 
 [profile.release]
 panic="abort"

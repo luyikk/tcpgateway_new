@@ -54,9 +54,10 @@ impl Client {
         self.is_open_zero.store(false, Ordering::Release);
         // 管它有没有 每个服务器都调用下 DropClientPeer 让服务器的 DropClientPeer 自己检查
         SERVICE_MANAGER.disconnect_events(self.session_id).await?;
+        let peer=self.peer.clone();
         // 断线
         tokio::spawn(async move {
-            self.peer.disconnect().await
+            peer.disconnect().await
         });
         Ok(())
     }
@@ -188,6 +189,7 @@ pub async fn input_buff(client: &Arc<Client>, mut data: Vec<u8>) -> Result<()> {
     let server_id = reader.read_fixed::<u32>()?;
     client.last_recv_time.store(timestamp(), Ordering::Release);
     if u32::MAX == server_id {
+        let client=client.clone();
         //给网关发送数据包,默认当PING包无脑回
         tokio::spawn(async move {
             client.send(server_id, &reader[reader.get_offset()..]).await
