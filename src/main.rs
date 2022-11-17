@@ -56,7 +56,7 @@ fn version() -> &'static str {
     "\n",
     }
 }
- 
+
 #[cfg(all(feature = "flexi_log", not(feature = "env_log")))]
 static LOGGER_HANDLER: tokio::sync::OnceCell<flexi_logger::LoggerHandle> =
     tokio::sync::OnceCell::const_new();
