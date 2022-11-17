@@ -10,7 +10,7 @@ use std::sync::atomic::{AtomicBool, AtomicI64, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
 use tcpserver::IPeer;
-use tokio::time::sleep;
+use tokio::time::{sleep, timeout};
 
 use crate::users::Peer;
 
@@ -67,7 +67,10 @@ impl Client {
         // 管它有没有 每个服务器都调用下 DropClientPeer 让服务器的 DropClientPeer 自己检查
         SERVICE_MANAGER.disconnect_events(self.session_id).await?;
         // 断线
-        self.peer.disconnect().await
+        tokio::spawn(async move {
+            self.peer.disconnect().await
+        });
+        Ok(())
     }
 
     /// 服务器open ok
@@ -171,8 +174,14 @@ impl Client {
     ) -> Result<()> {
         if !self.peer.is_disconnect().await? {
             let session_id = self.session_id;
-            if let Err(err) = self.peer.send_all(buff).await {
-                log::error!("peer:{} send data error:{}", session_id, err)
+            match timeout(Duration::from_secs(3),self.peer.send_all(buff)).await{
+                Err(_)=>{
+                    log::error!("peer:{} send data timeout 3 secs", session_id)
+                },
+                Ok(Err(err))=>{
+                    log::error!("peer:{} send data error:{}", session_id, err)
+                },
+                _=>{}
             }
         }
         Ok(())
@@ -196,7 +205,10 @@ pub async fn input_buff(client: &Arc<Client>, mut data: Vec<u8>) -> Result<()> {
     client.last_recv_time.store(timestamp(), Ordering::Release);
     if u32::MAX == server_id {
         //给网关发送数据包,默认当PING包无脑回
-        client.send(server_id, &reader[reader.get_offset()..]).await
+        tokio::spawn(async move {
+            client.send(server_id, &reader[reader.get_offset()..]).await
+        });
+        Ok(())
     } else {
         SERVICE_MANAGER
             .send_buffer(client.session_id, server_id, reader)
