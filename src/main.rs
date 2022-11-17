@@ -62,7 +62,7 @@ static LOGGER_HANDLER: tokio::sync::OnceCell<flexi_logger::LoggerHandle> =
     tokio::sync::OnceCell::const_new();
 
 fn install_log() -> Result<()> {
-    let opt = NavOpt::from_args();
+    let opt = NavOpt::parse();
     if opt.backtrace {
         std::env::set_var("RUST_BACKTRACE", "1");
     }
