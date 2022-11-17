@@ -104,7 +104,6 @@ impl ServiceInner {
     /// 检查ping
     #[inline]
     async fn check_ping(&self) -> Result<bool> {
-        log::trace!("service:{} check ping",self.service_id);
         let last_ping_time = self.last_ping_time.load(Ordering::Acquire);
         let now = timestamp();
         //10分钟 单位tick 秒后 7个0
