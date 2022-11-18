@@ -26,10 +26,16 @@ async fn main() -> Result<()> {
     server.start().await
 }
 
+#[cfg(feature = "unity")]
+static NAME:&str="tcp gateway service pb";
+
+#[cfg(not(feature = "unity"))]
+static NAME:&str="tcp gateway service";
+
 #[derive(Parser, Debug)]
 #[clap(
 version=version(),
-name = "tcp gateway service"
+name = NAME
 )]
 struct NavOpt {
     /// 是否开启控制台日志输出
