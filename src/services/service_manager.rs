@@ -49,7 +49,7 @@ impl ServiceManager {
 
     /// 客户端断线事件
     #[inline]
-    async fn disconnect_events(&self, session_id: u32) -> Result<()> {
+    async fn disconnect_events(&self, session_id: u32) {
         let services = self
             .services
             .values()
@@ -71,8 +71,6 @@ impl ServiceManager {
                 }
             }
         }
-
-        Ok(())
     }
 
     /// 根据typeid 返回服务器
@@ -137,7 +135,7 @@ pub trait IServiceManager {
     /// open 服务器
     async fn open_service(&self, session_id: u32, service_id: u32, ipaddress: &str) -> Result<()>;
     /// 客户端断线事件
-    async fn disconnect_events(&self, session_id: u32) -> Result<()>;
+    async fn disconnect_events(&self, session_id: u32);
     /// 发送数据给服务器
     async fn send_buffer(
         &self,
@@ -179,8 +177,8 @@ impl IServiceManager for Actor<ServiceManager> {
     }
 
     #[inline]
-    async fn disconnect_events(&self, session_id: u32) -> Result<()> {
-        unsafe { self.deref_inner().disconnect_events(session_id).await }
+    async fn disconnect_events(&self, session_id: u32) {
+        unsafe { self.deref_inner().disconnect_events(session_id).await; }
     }
 
     #[inline]

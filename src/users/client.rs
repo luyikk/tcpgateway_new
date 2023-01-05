@@ -49,17 +49,16 @@ impl Client {
 
     /// 立刻断线 同时清理
     #[inline]
-    pub async fn disconnect_now(&self) -> Result<()> {
+    pub async fn disconnect_now(&self){
         // 先关闭OPEN 0 标志位
         self.is_open_zero.store(false, Ordering::Release);
         // 管它有没有 每个服务器都调用下 DropClientPeer 让服务器的 DropClientPeer 自己检查
-        SERVICE_MANAGER.disconnect_events(self.session_id).await?;
+        SERVICE_MANAGER.disconnect_events(self.session_id).await;
         let peer=self.peer.clone();
         // 断线
         tokio::spawn(async move {
             peer.disconnect().await
         });
-        Ok(())
     }
 
     /// 服务器open ok
@@ -106,7 +105,8 @@ impl Client {
     async fn kick(&self) -> Result<()> {
         log::info!("start kick peer:{} now",self.session_id);
         self.send_close(0).await?;
-        self.disconnect_now().await
+        self.disconnect_now().await;
+        Ok(())
     }
 
     /// 发送数据包给客户端
