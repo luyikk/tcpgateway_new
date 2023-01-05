@@ -61,17 +61,14 @@ impl Client {
 
     /// 立刻断线 同时清理
     #[inline]
-    pub async fn disconnect_now(&self) -> Result<()> {
+    pub async fn disconnect_now(&self) {
         // 先关闭OPEN 0 标志位
         self.is_open_zero.store(false, Ordering::Release);
         // 管它有没有 每个服务器都调用下 DropClientPeer 让服务器的 DropClientPeer 自己检查
-        SERVICE_MANAGER.disconnect_events(self.session_id).await?;
-        let peer=self.peer.clone();
+        SERVICE_MANAGER.disconnect_events(self.session_id).await;
+        let peer = self.peer.clone();
         // 断线
-        tokio::spawn(async move {
-            peer.disconnect().await
-        });
-        Ok(())
+        tokio::spawn(async move { peer.disconnect().await });
     }
 
     /// 服务器open ok
@@ -123,7 +120,8 @@ impl Client {
     async fn kick(&self) -> Result<()> {
         log::info!("start kick peer:{} now", self.session_id);
         self.send_close(0).await?;
-        self.disconnect_now().await
+        self.disconnect_now().await;
+        Ok(())
     }
 
     /// 发送数据包给客户端
@@ -175,14 +173,14 @@ impl Client {
     ) -> Result<()> {
         if !self.peer.is_disconnect().await? {
             let session_id = self.session_id;
-            match timeout(Duration::from_secs(3),self.peer.send_all(buff)).await{
-                Err(_)=>{
+            match timeout(Duration::from_secs(3), self.peer.send_all(buff)).await {
+                Err(_) => {
                     log::error!("peer:{} send data timeout 3 secs", session_id)
-                },
-                Ok(Err(err))=>{
+                }
+                Ok(Err(err)) => {
                     log::error!("peer:{} send data error:{}", session_id, err)
-                },
-                _=>{}
+                }
+                _ => {}
             }
         }
         Ok(())
@@ -206,10 +204,8 @@ pub async fn input_buff(client: &Arc<Client>, mut data: Vec<u8>) -> Result<()> {
     client.last_recv_time.store(timestamp(), Ordering::Release);
     if u32::MAX == server_id {
         //给网关发送数据包,默认当PING包无脑回
-        let client=client.clone();
-        tokio::spawn(async move {
-            client.send(server_id, &reader[reader.get_offset()..]).await
-        });
+        let client = client.clone();
+        tokio::spawn(async move { client.send(server_id, &reader[reader.get_offset()..]).await });
         Ok(())
     } else {
         SERVICE_MANAGER

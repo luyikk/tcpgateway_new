@@ -45,11 +45,10 @@ impl UserManager {
     }
     /// 删除一个client
     #[inline]
-    async fn remove_client(&mut self, session_id: u32) -> Result<()> {
+    async fn remove_client(&mut self, session_id: u32) {
         if let Some(peer) = self.users.remove(&session_id) {
-            peer.disconnect_now().await?;
+            peer.disconnect_now().await;
         }
-        Ok(())
     }
 
     /// 返回一个 session_id
@@ -164,9 +163,7 @@ impl UserManager {
         {
             if let Some(client) = self.users.remove(&session_id) {
                 log::info!("peer:{} timeout need disconnect", client);
-                if let Err(err) = client.disconnect_now().await {
-                    log::error!("remove peer:{} is error:{:?}", client, err)
-                }
+                client.disconnect_now().await;
             }
         }
 
@@ -181,7 +178,7 @@ pub trait IUserManager {
     /// 制造一个 client
     async fn make_client(&self, peer: Peer) -> Result<Arc<Client>>;
     /// 删除一个client
-    async fn remove_client(&self, session_id: u32) -> Result<()>;
+    async fn remove_client(&self, session_id: u32);
     /// send open service 通知
     async fn open_service(&self, service_id: u32, session_id: u32) -> Result<()>;
     /// close service 通知
@@ -211,7 +208,7 @@ impl IUserManager for Actor<UserManager> {
             .await
     }
     #[inline]
-    async fn remove_client(&self, session_id: u32) -> Result<()> {
+    async fn remove_client(&self, session_id: u32) {
         self.inner_call(|inner| async move { inner.get_mut().remove_client(session_id).await })
             .await
     }

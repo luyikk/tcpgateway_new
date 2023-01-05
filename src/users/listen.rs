@@ -35,9 +35,9 @@ impl Listen {
                 let client = USER_MANAGER.make_client(peer).await?;
                 let session_id = client.session_id;
                 let res = Self::data_input(reader, client).await;
-                if let Err(err) = USER_MANAGER.remove_client(session_id).await {
-                    log::error!("remove peer:{} error:{}", session_id, err);
-                }
+                // 等2秒,防止通知大厅disconnect的时候 peer还没有创建
+                tokio::time::sleep(Duration::from_secs(2)).await;
+                USER_MANAGER.remove_client(session_id).await;
                 res
             })
             .build()

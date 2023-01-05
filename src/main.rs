@@ -26,13 +26,11 @@ async fn main() -> Result<()> {
     server.start().await
 }
 
-
 #[cfg(feature = "unity")]
-static NAME:&str="tcp gateway service pb";
+static NAME: &str = "tcp gateway service pb";
 
 #[cfg(not(feature = "unity"))]
-static NAME:&str="tcp gateway service";
-
+static NAME: &str = "tcp gateway service";
 
 #[derive(Parser, Debug)]
 #[clap(
