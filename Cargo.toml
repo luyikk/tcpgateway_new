@@ -29,8 +29,8 @@ serde={version="1",features=["derive"]}
 serde_json="1"
 lazy_static = "1.4"
 clap = { version = "4", features = ["derive"] }
-flexi_logger={version= "0.24",features=["async"],optional =true}
-env_logger = {version="0.9",optional =true}
+flexi_logger={version= "0.25",features=["async"],optional =true}
+env_logger = {version= "0.10",optional =true}
 
 
 [build-dependencies]
