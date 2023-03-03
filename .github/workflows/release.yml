@@ -17,5 +17,7 @@ jobs:
         with:
           changelog: "CHANGELOG.md"
           title: "TcpGateway $version"
+          branch: main
+          draft: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
