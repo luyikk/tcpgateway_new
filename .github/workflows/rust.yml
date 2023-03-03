@@ -29,6 +29,8 @@ jobs:
     name: Check
     runs-on: ubuntu-latest
     steps:
+      - name: Output the branch name
+        run: echo $(echo $GITHUB_REF | cut -d'/' -f 3)
       - name: Checkout sources
         uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v2
@@ -40,6 +42,8 @@ jobs:
     name: test
     runs-on: ubuntu-latest
     steps:
+      - name: Output the branch name
+        run: echo $(echo $GITHUB_REF | cut -d'/' -f 3)
       - name: Test sources
         uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v2
@@ -51,6 +55,8 @@ jobs:
     name: Lints
     runs-on: ubuntu-latest
     steps:
+      - name: Output the branch name
+        run: echo $(echo $GITHUB_REF | cut -d'/' -f 3)
       - name: Checkout sources
         uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v2
@@ -74,6 +80,8 @@ jobs:
           - rust: nightly
             os: ubuntu-latest
     steps:
+      - name: Output the branch name
+        run: echo $(echo $GITHUB_REF | cut -d'/' -f 3)
       - name: Checkout sources
         uses: actions/checkout@v3
 
