@@ -6,14 +6,14 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-default=["flexi_log"]
-flexi_log=["flexi_logger"]
-env_log=["env_logger"]
-unity=[]
+default = ["flexi_log"]
+flexi_log = ["flexi_logger"]
+env_log = ["env_logger"]
+unity = []
 
 [dependencies]
-tokio = {version="1",features=["full"]}
-anyhow="1"
+tokio = { version = "1", features = ["full"] }
+anyhow = "1"
 tcpclient = "1.4"
 tcpserver = "1.6"
 mimalloc = "0.1"
@@ -21,23 +21,24 @@ ahash = "0.8"
 aqueue = "1.2"
 log = "0.4"
 async-trait = "0.1"
-data-rw="1.6.0"
-bytes="1.1"
+data-rw = "1.6.0"
+bytes = "1.1"
 bi-directional-pipe = "0.1"
-chrono="0.4"
-serde={version="1",features=["derive"]}
-serde_json="1"
+chrono = "0.4"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 lazy_static = "1.4"
 clap = { version = "4", features = ["derive"] }
-flexi_logger={version= "0.24",features=["async"],optional =true}
-env_logger = {version="0.9",optional =true}
+flexi_logger = { version = "0.24", features = ["async"], optional = true }
+env_logger = { version = "0.9", optional = true }
 
 
 [build-dependencies]
-anyhow="1.0"
-vergen= "7"
+anyhow = "1.0"
+vergen = "7"
 
 [profile.release]
-panic="abort"
+panic = "abort"
 lto = true
 codegen-units = 1
+strip = false
