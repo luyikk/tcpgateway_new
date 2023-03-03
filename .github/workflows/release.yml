@@ -3,7 +3,7 @@ name: release
 on:
   push:
       tags:
-        - m[0-9]+.*
+        - v[0-9]+.*
 
 jobs:
   create-release:
@@ -16,8 +16,6 @@ jobs:
       - uses: taiki-e/create-gh-release-action@v1
         with:
           changelog: "CHANGELOG.md"
-          title: "TcpGateway $version"
-          branch: main
-          draft: false
+          title: "tcpgateway $version"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
