@@ -178,7 +178,9 @@ impl IServiceManager for Actor<ServiceManager> {
 
     #[inline]
     async fn disconnect_events(&self, session_id: u32) {
-        unsafe { self.deref_inner().disconnect_events(session_id).await; }
+        unsafe {
+            self.deref_inner().disconnect_events(session_id).await;
+        }
     }
 
     #[inline]
