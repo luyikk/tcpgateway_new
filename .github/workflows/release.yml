@@ -16,6 +16,6 @@ jobs:
       - uses: taiki-e/create-gh-release-action@v1
         with:
           changelog: "CHANGELOG.md"
-          title: "aqueue $version"
+          title: "TcpGateway $version"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
