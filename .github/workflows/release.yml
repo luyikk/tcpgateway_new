@@ -3,38 +3,19 @@ name: release
 on:
   push:
       tags:
-        - master-v[0-9]+.*
-        - encryption-v[0-9]+.*
+        - v[0-9]+.*
 
 jobs:
-  create-master-release:
-     if: contains(github.ref, 'master')
-     name: Create ${{ github.ref }} release
+  create-release:
+     name: Create GitHub release
      runs-on: ubuntu-latest
      steps:
       - uses: actions/checkout@v3
         with:
            persist-credentials: false
-           ref: master
       - uses: taiki-e/create-gh-release-action@v1
         with:
           changelog: "CHANGELOG.md"
           branch: master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
-  create-encryption-release:    
-     if: contains(github.ref, 'encryption')
-     name: Create ${{ github.ref }} release
-     runs-on: ubuntu-latest
-     steps:
-      - uses: actions/checkout@v3
-        with:
-           persist-credentials: false
-           ref: dynamic_encryption
-      - uses: taiki-e/create-gh-release-action@v1
-        with:
-          changelog: "CHANGELOG.md"
-          branch: dynamic_encryption
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
