@@ -1,5 +1,5 @@
 use crate::time::timestamp;
-use crate::{CONFIG, get_len, IServiceManager, SERVICE_MANAGER};
+use crate::{get_len, IServiceManager, CONFIG, SERVICE_MANAGER};
 use anyhow::{ensure, Result};
 use bytes::BufMut;
 use data_rw::DataOwnedReader;
@@ -49,16 +49,14 @@ impl Client {
 
     /// 立刻断线 同时清理
     #[inline]
-    pub async fn disconnect_now(&self){
+    pub async fn disconnect_now(&self) {
         // 先关闭OPEN 0 标志位
         self.is_open_zero.store(false, Ordering::Release);
         // 管它有没有 每个服务器都调用下 DropClientPeer 让服务器的 DropClientPeer 自己检查
         SERVICE_MANAGER.disconnect_events(self.session_id).await;
-        let peer=self.peer.clone();
+        let peer = self.peer.clone();
         // 断线
-        tokio::spawn(async move {
-            peer.disconnect().await
-        });
+        tokio::spawn(async move { peer.disconnect().await });
     }
 
     /// 服务器open ok
@@ -86,7 +84,12 @@ impl Client {
         if !(0..=30000).contains(&delay_ms) {
             delay_ms = 5000;
         }
-        log::info!("service:{} delay kick peer:{} delay_ms:{}", service_id, self,delay_ms);
+        log::info!(
+            "service:{} delay kick peer:{} delay_ms:{}",
+            service_id,
+            self,
+            delay_ms
+        );
         self.send_close(0).await?;
         let peer = self.peer.clone();
         let session_id = self.session_id;
@@ -103,7 +106,7 @@ impl Client {
     /// 发送 CLOSE 0 后立即断线清理内存
     #[inline]
     async fn kick(&self) -> Result<()> {
-        log::info!("start kick peer:{} now",self.session_id);
+        log::info!("start kick peer:{} now", self.session_id);
         self.send_close(0).await?;
         self.disconnect_now().await;
         Ok(())
@@ -158,16 +161,15 @@ impl Client {
     ) -> Result<()> {
         if !self.peer.is_disconnect().await? {
             let session_id = self.session_id;
-            match timeout(Duration::from_secs(3),self.peer.send_all(buff)).await{
-                Err(_)=>{
+            match timeout(Duration::from_secs(3), self.peer.send_all(buff)).await {
+                Err(_) => {
                     log::error!("peer:{} send data timeout 3 secs", session_id)
-                },
-                Ok(Err(err))=>{
+                }
+                Ok(Err(err)) => {
                     log::error!("peer:{} send data error:{}", session_id, err)
-                },
-                _=>{}
+                }
+                _ => {}
             }
-
         }
         Ok(())
     }
@@ -189,11 +191,9 @@ pub async fn input_buff(client: &Arc<Client>, mut data: Vec<u8>) -> Result<()> {
     let server_id = reader.read_fixed::<u32>()?;
     client.last_recv_time.store(timestamp(), Ordering::Release);
     if u32::MAX == server_id {
-        let client=client.clone();
+        let client = client.clone();
         //给网关发送数据包,默认当PING包无脑回
-        tokio::spawn(async move {
-            client.send(server_id, &reader[reader.get_offset()..]).await
-        });
+        tokio::spawn(async move { client.send(server_id, &reader[reader.get_offset()..]).await });
         Ok(())
     } else {
         SERVICE_MANAGER
@@ -204,18 +204,18 @@ pub async fn input_buff(client: &Arc<Client>, mut data: Vec<u8>) -> Result<()> {
 
 /// 加密
 #[inline]
-fn encode(data:&mut [u8]){
+fn encode(data: &mut [u8]) {
     decode(data);
 }
 
 /// 解密
 #[inline]
-fn decode(data:&mut [u8]){
-    if let Some(ref key)= CONFIG.encode {
+fn decode(data: &mut [u8]) {
+    if let Some(ref key) = CONFIG.encode {
         let key = key.as_bytes();
         if !key.is_empty() {
             let mut j = 0;
-            for item in data  {
+            for item in data {
                 *item ^= key[j];
                 j += 1;
                 if j >= key.len() {
@@ -225,4 +225,3 @@ fn decode(data:&mut [u8]){
         }
     }
 }
-
