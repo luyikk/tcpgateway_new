@@ -161,9 +161,9 @@ impl Client {
     ) -> Result<()> {
         if !self.peer.is_disconnect().await? {
             let session_id = self.session_id;
-            match timeout(Duration::from_secs(3), self.peer.send_all(buff)).await {
+            match timeout(Duration::from_secs(10), self.peer.send_all(buff)).await {
                 Err(_) => {
-                    log::error!("peer:{} send data timeout 3 secs", session_id)
+                    log::error!("peer:{} send data timeout 10 secs", session_id)
                 }
                 Ok(Err(err)) => {
                     log::error!("peer:{} send data error:{}", session_id, err)
