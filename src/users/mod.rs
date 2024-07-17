@@ -171,7 +171,6 @@ impl UserManager {
     }
 }
 
-#[async_trait::async_trait]
 pub trait IUserManager {
     /// 制造一个 client
     async fn make_client(&self, peer: Peer) -> Result<Arc<Client>>;
@@ -194,7 +193,6 @@ pub trait IUserManager {
     async fn check_timeout(&self) -> Result<()>;
 }
 
-#[async_trait::async_trait]
 impl IUserManager for Actor<UserManager> {
     #[inline]
     async fn make_client(&self, peer: Peer) -> Result<Arc<Client>> {
