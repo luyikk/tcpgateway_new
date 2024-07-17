@@ -171,10 +171,7 @@ impl UserManager {
     }
 }
 
-#[async_trait::async_trait]
 pub trait IUserManager {
-    /// 制造一个 session_id
-    fn make_session_id(&self) -> u32;
     /// 制造一个 client
     async fn make_client(&self, peer: Peer) -> Result<Arc<Client>>;
     /// 删除一个client
@@ -196,12 +193,7 @@ pub trait IUserManager {
     async fn check_timeout(&self) -> Result<()>;
 }
 
-#[async_trait::async_trait]
 impl IUserManager for Actor<UserManager> {
-    #[inline]
-    fn make_session_id(&self) -> u32 {
-        unsafe { self.deref_inner().make_session_id() }
-    }
     #[inline]
     async fn make_client(&self, peer: Peer) -> Result<Arc<Client>> {
         self.inner_call(|inner| async move { inner.get_mut().make_client(peer) })

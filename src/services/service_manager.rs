@@ -126,7 +126,6 @@ impl ServiceManager {
     }
 }
 
-#[async_trait::async_trait]
 pub trait IServiceManager {
     /// 启动服务
     fn start(&self);
@@ -145,7 +144,6 @@ pub trait IServiceManager {
     ) -> Result<()>;
 }
 
-#[async_trait::async_trait]
 impl IServiceManager for Actor<ServiceManager> {
     #[inline]
     fn start(&self) {
