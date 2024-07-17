@@ -30,10 +30,10 @@ jobs:
             os: ubuntu-latest
             features: unity
             ver: pb
-          - target: x86_64-unknown-linux-gnu
-            os: ubuntu-18.04
-            features: unity
-            ver: pb
+#          - target: x86_64-unknown-linux-gnu
+#            os: ubuntu-18.04
+#            features: unity
+#            ver: pb
           - target: x86_64-apple-darwin
             os: macos-latest
             features: unity
@@ -46,9 +46,9 @@ jobs:
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
             ver: pkg
-          - target: x86_64-unknown-linux-gnu
-            os: ubuntu-18.04
-            ver: pkg
+#          - target: x86_64-unknown-linux-gnu
+#            os: ubuntu-18.04
+#            ver: pkg
           - target: x86_64-apple-darwin
             os: macos-latest
             ver: pkg
@@ -60,10 +60,10 @@ jobs:
             os: ubuntu-latest
             features: unity
             ver: pb
-          - target: aarch64-unknown-linux-gnu
-            os: ubuntu-18.04
-            features: unity
-            ver: pb
+#          - target: aarch64-unknown-linux-gnu
+#            os: ubuntu-18.04
+#            features: unity
+#            ver: pb
           - target: aarch64-apple-darwin
             os: macos-latest
             features: unity
@@ -76,9 +76,9 @@ jobs:
           - target: aarch64-unknown-linux-gnu
             os: ubuntu-latest
             ver: pkg
-          - target: aarch64-unknown-linux-gnu
-            os: ubuntu-18.04
-            ver: pkg
+#          - target: aarch64-unknown-linux-gnu
+#            os: ubuntu-18.04
+#            ver: pkg
           - target: aarch64-apple-darwin
             os: macos-latest
             ver: pkg
