@@ -303,7 +303,6 @@ pub trait IServiceInner {
     async fn disconnect(&self) -> Result<()>;
 }
 
-
 impl IServiceInner for Actor<ServiceInner> {
     #[inline]
     fn get_service_id(&self) -> u32 {
@@ -322,7 +321,6 @@ impl IServiceInner for Actor<ServiceInner> {
                 .store(timestamp, Ordering::Release);
         }
     }
-
 
     #[inline]
     fn set_last_ping_time(&self, timestamp: i64) {
