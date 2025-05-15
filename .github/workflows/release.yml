@@ -123,9 +123,11 @@ jobs:
             ver: pb
           - image: luyikk/rust_ubuntu
             os: ubuntu2204
+            bin: tcpgateway
             ver: pkg
           - image: luyikk/rust_ubuntu
             os: ubuntu2204
+            bin: tcpgateway
             ver: pkg
 
     steps:
