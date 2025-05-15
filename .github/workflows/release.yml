@@ -122,7 +122,7 @@ jobs:
             bin: tcpgateway
             ver: pb
           - image: luyikk/rust_ubuntu
-            os: ubuntu2204
+            os: ubuntu1804
             bin: tcpgateway
             ver: pkg
           - image: luyikk/rust_ubuntu
