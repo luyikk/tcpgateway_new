@@ -4,12 +4,10 @@ use anyhow::{ensure, Result};
 use bytes::BufMut;
 use data_rw::DataOwnedReader;
 use std::fmt::{self, Display, Formatter};
-use std::ops::Deref;
 use std::sync::atomic::{AtomicBool, AtomicI64, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
-use tcpserver::IPeer;
-use tokio::time::{sleep, timeout};
+use tokio::time::sleep;
 
 use crate::users::Peer;
 
@@ -155,21 +153,9 @@ impl Client {
 
     /// 发送数据包
     #[inline]
-    async fn send_buff<B: Deref<Target = [u8]> + Send + Sync + 'static>(
-        &self,
-        buff: B,
-    ) -> Result<()> {
-        if !self.peer.is_disconnect().await? {
-            let session_id = self.session_id;
-            match timeout(Duration::from_secs(10), self.peer.send_all(buff)).await {
-                Err(_) => {
-                    log::error!("peer:{} send data timeout 10 secs", session_id)
-                }
-                Ok(Err(err)) => {
-                    log::error!("peer:{} send data error:{}", session_id, err)
-                }
-                _ => {}
-            }
+    async fn send_buff(&self, buff: Vec<u8>) -> Result<()> {
+        if !self.peer.is_disconnect() {
+            self.peer.send_all(buff).await?;
         }
         Ok(())
     }

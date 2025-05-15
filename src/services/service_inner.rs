@@ -243,7 +243,8 @@ impl ServiceInner {
         buff: B,
     ) -> Result<()> {
         if let Some(ref client) = self.client {
-            client.send_all(buff).await
+            client.send_all(buff).await?;
+            Ok(())
         } else {
             log::error!("service:{} not connect", self.service_id);
             Ok(())

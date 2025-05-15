@@ -15,7 +15,7 @@ unity = []
 tokio = { version = "1", features = ["full"] }
 anyhow = "1"
 tcpclient = "2"
-tcpserver = "2"
+tcp-channel-server = "0.2"
 mimalloc = "0.1"
 ahash = "0.8"
 aqueue = "1.2"
@@ -29,7 +29,7 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 lazy_static = "1.4"
 clap = { version = "4", features = ["derive"] }
-flexi_logger = { version = "0.28", features = ["async"], optional = true }
+flexi_logger = { version = "0.30", features = ["async"], optional = true }
 env_logger = { version = "0.11", optional = true }
 
 

@@ -1,10 +1,9 @@
 use anyhow::{ensure, Result};
-use aqueue::Actor;
 use log::info;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use std::time::Duration;
-use tcpserver::*;
+use tcp_channel_server::*;
 use tokio::io::{AsyncReadExt, ReadHalf};
 use tokio::net::{TcpStream, ToSocketAddrs};
 
@@ -15,7 +14,7 @@ use crate::{IServiceManager, SERVICE_MANAGER};
 /// 最大数据表长度限制 512K
 const MAX_BUFF_LEN: usize = 512 * 1024;
 
-pub type Peer = Arc<Actor<TCPPeer<TcpStream>>>;
+pub type Peer = Arc<TCPPeer<TcpStream>>;
 
 /// 客户端监听服务
 pub struct Listen {
@@ -59,27 +58,6 @@ impl Listen {
 
         loop {
             let len = {
-                // let res = timeout(
-                //     Duration::from_secs(CONFIG.client_timeout_seconds as u64),
-                //     reader.read_u32_le(),
-                // )
-                // .await
-                // .map_err(|_| {
-                //     anyhow!(
-                //         "client:{}-{} {} secs not read data",
-                //         session_id,
-                //         address,
-                //         CONFIG.client_timeout_seconds as u64
-                //     )
-                // })?;
-
-                // if let Ok(len) = res {
-                //     len as usize
-                // } else {
-                //     log::warn!("client:{} disconnect not read data", client);
-                //     break;
-                // }
-
                 match reader.read_u32_le().await {
                     Ok(len) => len as usize,
                     Err(err) => {
